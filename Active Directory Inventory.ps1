@@ -4,21 +4,21 @@ $Script:PSScriptRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definiti
 
 
 
-###определяет тип компьютера
+###РѕРїСЂРµРґРµР»СЏРµС‚ С‚РёРї РєРѕРјРїСЊСЋС‚РµСЂР°
 function get-TypePC($PCname){
 $PCmodel=""
 $WMIinfo=gwmi win32_systemenclosure -ComputerName $PCname
 switch($WMIinfo.chassistypes){
-1 {$PCmodel="Другое";break}
+1 {$PCmodel="Р”СЂСѓРіРѕРµ";break}
 2 {$PCmodel="Unknown";break}
-3 {$PCmodel="Настольный ПК";break}
+3 {$PCmodel="РќР°СЃС‚РѕР»СЊРЅС‹Р№ РџРљ";break}
 4 {$PCmodel="Low Profile Desktop";break}
 5 {$PCmodel="Pizza Box";break}
 6 {$PCmodel="Mini Tower";break}
 7 {$PCmodel="Tower";break}
 8 {$PCmodel="Portable";break}
 9 {$PCmodel="Laptop";break}
-10 {$PCmodel="Ноутбук";break}
+10 {$PCmodel="РќРѕСѓС‚Р±СѓРє";break}
 11 {$PCmodel="Handheld";break}
 12 {$PCmodel="Docking Station";break}
 13 {$PCmodel="All-in-One";break}
@@ -39,7 +39,7 @@ return $PCmodel
 
 
 
-###Заменяет неверные размерности хардов
+###Р—Р°РјРµРЅСЏРµС‚ РЅРµРІРµСЂРЅС‹Рµ СЂР°Р·РјРµСЂРЅРѕСЃС‚Рё С…Р°СЂРґРѕРІ
 function get-HHDRightSize($size){
 switch($size){
 75 {$size=80;break}
@@ -56,7 +56,7 @@ return $size
 
 
 
-###Получение актуального списа AD компьютеров
+###РџРѕР»СѓС‡РµРЅРёРµ Р°РєС‚СѓР°Р»СЊРЅРѕРіРѕ СЃРїРёСЃР° AD РєРѕРјРїСЊСЋС‚РµСЂРѕРІ
 function get-ADList{
 import-module activedirectory
 $Object=Get-ADComputer -filter * -Properties name, LastLogon, operatingsystem|Select-Object name, operatingsystem -Skip 1|sort-object name
@@ -79,7 +79,7 @@ return $Object
 
 
 
-###Архивация
+###РђСЂС…РёРІР°С†РёСЏ
 function start-Archive([int32]$CountArchive){
 
 if((Test-Path "$PSScriptRoot\Archive") -eq $false){new-item "$PSScriptRoot\Archive" -Type directory}   #archive data directory
@@ -95,7 +95,7 @@ return
 
 
 
-###Обновить лист
+###РћР±РЅРѕРІРёС‚СЊ Р»РёСЃС‚
 function get-UpdateList{
 $OldList=Import-Clixml $PSScriptRoot\Data\adcomp.xml
 $NewList=get-ADList
@@ -120,7 +120,7 @@ return $ADList
 }
 
 
-###Сравнение списков
+###РЎСЂР°РІРЅРµРЅРёРµ СЃРїРёСЃРєРѕРІ
 function get-CompareList($NewList, $OldList){
 
 for($i=0;$i -lt $NewList.length;$i++)
@@ -141,7 +141,7 @@ for($i=0;$i -lt $NewList.length;$i++)
 }
 
 
-###Новая инвентаризация
+###РќРѕРІР°СЏ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ
 function get-NewInventory(){
 
 if((Test-Path "$PSScriptRoot\Data") -eq $false){new-item "$PSScriptRoot\Data" -Type directory}
@@ -155,24 +155,24 @@ start-Inventory
 
 
 
-###Основная инвентаризация
+###РћСЃРЅРѕРІРЅР°СЏ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ
 function start-Inventory(){
 
 if((Test-Path "$PSScriptRoot\Data") -eq $false){get-NewInventory;break}
 else
 {
-start-Archive 100 #Создаем архив, хранит не более 100 архивов
+start-Archive 100 #РЎРѕР·РґР°РµРј Р°СЂС…РёРІ, С…СЂР°РЅРёС‚ РЅРµ Р±РѕР»РµРµ 100 Р°СЂС…РёРІРѕРІ
 $ADList=get-UpdateList
 $CompareList=get-UpdateList
 
 $ADlist|where{$_.status -like "Ok"}|foreach{if((Test-Connection $_.name -Count 1 -Quiet) -eq $false) #if comp on -> set wmi parametrs
 {
-Write-Host $_.name "Выключен..." -ForegroundColor Red
+Write-Host $_.name "Р’С‹РєР»СЋС‡РµРЅ..." -ForegroundColor Red
 $_.Status="Off"
 }
 else
 {
-Write-Host $_.name "Включен..." -ForegroundColor Green
+Write-Host $_.name "Р’РєР»СЋС‡РµРЅ..." -ForegroundColor Green
 
 $hdd=get-wmiobject -ComputerName $_.name -Class win32_diskdrive|where{$_.DeviceID -like "*PHYSICALDRIVE0"}|Select-Object SerialNumber, @{n="size"; e={[int32]($_.size/1048576/1024)}}
 $os=Get-WmiObject -ComputerName $_.name -Class win32_operatingsystem|Select-Object OSArchitecture, serialnumber
@@ -202,7 +202,7 @@ $ADlist|foreach{if($_.HDD_SerialNumber -notlike $null -and $_.HDD_SerialNumber.L
 $_.HDD_SerialNumber='';$_.HDD_SerialNumber+=$hdd_dex|foreach{$_};$_.HDD_SerialNumber=$_.HDD_SerialNumber -replace " "}}
 
 
-###функция для сравнения двух списков и выявления смены комплектующих
+###С„СѓРЅРєС†РёСЏ РґР»СЏ СЃСЂР°РІРЅРµРЅРёСЏ РґРІСѓС… СЃРїРёСЃРєРѕРІ Рё РІС‹СЏРІР»РµРЅРёСЏ СЃРјРµРЅС‹ РєРѕРјРїР»РµРєС‚СѓСЋС‰РёС…
 
 
 $ADlist=$ADlist|sort-object name
