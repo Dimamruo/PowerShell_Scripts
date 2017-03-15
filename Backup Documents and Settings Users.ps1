@@ -1,9 +1,9 @@
-$script:exclude="TEMP*","admin*","muromtsev","pot*","all*","default*","ltask","minaev","operator","GOD"
-$script:drive='E:\backup1\'	##локальный диск куда копировать
-$script:dircomp="Y:"		##Какой буквой сделать сетевой диск к которому программа будет цепляться
-$script:comp=read-host "Введите имя компа"
+$script:exclude="TEMP*","admin*","all*","default*"
+$script:drive='E:\backup1\'	##Р»РѕРєР°Р»СЊРЅС‹Р№ РґРёСЃРє РєСѓРґР° РєРѕРїРёСЂРѕРІР°С‚СЊ
+$script:dircomp="Y:"		##РљР°РєРѕР№ Р±СѓРєРІРѕР№ СЃРґРµР»Р°С‚СЊ СЃРµС‚РµРІРѕР№ РґРёСЃРє Рє РєРѕС‚РѕСЂРѕРјСѓ РїСЂРѕРіСЂР°РјРјР° Р±СѓРґРµС‚ С†РµРїР»СЏС‚СЊСЃСЏ
+$script:comp=read-host "Р’РІРµРґРёС‚Рµ РёРјСЏ РєРѕРјРїР°"
 #$script:comp="powershell"
-write-host "`n`n Какой метод применить?`n`n 1)Backup `n 2)Restore `n e)Exit`n`n"
+write-host "`n`n РљР°РєРѕР№ РјРµС‚РѕРґ РїСЂРёРјРµРЅРёС‚СЊ?`n`n 1)Backup `n 2)Restore `n e)Exit`n`n"
 
 $answer=read-host "Enter the key"
 
@@ -13,7 +13,7 @@ function copy-file ([string]$from, [string]$to){
 if((Test-Path $from) -eq $true){
 	Copy-Item -Path $from -Destination $to -Recurse
 	write-host -ForegroundColor green "$from - complite!"}
-else{write-host -ForegroundColor red "$from - не существует на исходном ПК"}
+else{write-host -ForegroundColor red "$from - РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РЅР° РёСЃС…РѕРґРЅРѕРј РџРљ"}
 }
 
 
@@ -29,8 +29,8 @@ $users=(Get-ChildItem -path ($dircomp+'\Documents and Settings') -Exclude $exclu
 
 $FROMroaming="\Application Data"
 $FROMlocal="\Local Settings\Application Data"
-$FROMdocuments="\Мои документы"
-$FROMdescktop="\Рабочий стол"
+$FROMdocuments="\РњРѕРё РґРѕРєСѓРјРµРЅС‚С‹"
+$FROMdescktop="\Р Р°Р±РѕС‡РёР№ СЃС‚РѕР»"
 }
 
 if ($os.name -notlike '*windows xp*'){
@@ -48,7 +48,7 @@ $TOlocal="\AppData\Local"
 $TOdocuments="\Documents"
 $TOdescktop="\desktop"
 
-#папки бэкапов
+#РїР°РїРєРё Р±СЌРєР°РїРѕРІ
 $FULLuser=(Get-ChildItem -path ($dircomp+'\Users') -Exclude "Application Data","Local Settings","AppData")
 $Signature="\Microsoft\Signatures"
 $Mozilla="\Mozilla\Firefox"
@@ -59,14 +59,14 @@ $OutlookContacts="\Microsoft\Outlook"
 #$filecount.count
 $users.fullname|Format-Table
 
-#Определение пользователей
+#РћРїСЂРµРґРµР»РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
 $users|foreach{
 
-#Создание переменных внутри цикла
+#РЎРѕР·РґР°РЅРёРµ РїРµСЂРµРјРµРЅРЅС‹С… РІРЅСѓС‚СЂРё С†РёРєР»Р°
 $backupdir=$drive+$os.csname+"\"+$_.name
 $user=$_.name
 
-#цикл в подпапке пользователя исключая Апп папку
+#С†РёРєР» РІ РїРѕРґРїР°РїРєРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёСЃРєР»СЋС‡Р°СЏ РђРїРї РїР°РїРєСѓ
 $FULLuser=(Get-ChildItem -path ($_.FullName) -Exclude "Application Data","Local Settings","AppData")
 $FULLuser|foreach{
 copy-file ($_.FullName) ($backupdir)
